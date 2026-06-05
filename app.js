@@ -83,17 +83,13 @@ async function registerUser(name, email, password, phone) {
     return { success: false, error };
   }
 }
-
 async function loginUser(email, password) {
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     showToast('Login successful!');
-    
-    // Redirect to home page after login
     setTimeout(() => {
       window.location.href = 'index.html';
     }, 1000);
-    
     return { success: true, user: userCredential.user };
   } catch (error) {
     console.error('Login error:', error);
@@ -108,6 +104,59 @@ async function loginUser(email, password) {
   }
 }
 
+async function saveUserProfile(user) {
+  if (!user) return;
+  try {
+    const providerData = user.providerData && user.providerData[0] ? user.providerData[0] : {};
+    await setDoc(doc(db, 'users', user.uid), {
+      name: user.displayName || providerData.displayName || '',
+      email: user.email || providerData.email || '',
+      phone: user.phoneNumber || providerData.phoneNumber || '',
+      providerId: providerData.providerId || '',
+      lastLoginAt: serverTimestamp(),
+      createdAt: serverTimestamp()
+    }, { merge: true });
+  } catch (error) {
+    console.error('Error saving user profile:', error);
+  }
+}
+
+async function signInWithProvider(provider) {
+  try {
+    const result = await signInWithPopup(auth, provider);
+    await saveUserProfile(result.user);
+    showToast('Login successful!');
+    setTimeout(() => {
+      window.location.href = 'index.html';
+    }, 1000);
+    return { success: true, user: result.user };
+  } catch (error) {
+    console.error('Social login error:', error);
+    let message = 'Social login failed. Please try again.';
+    if (error.code === 'auth/popup-closed-by-user') {
+      message = 'Login popup closed before completion.';
+    } else if (error.code === 'auth/account-exists-with-different-credential') {
+      message = 'An account already exists with a different sign-in method.';
+    }
+    showToast(message, 'error');
+    return { success: false, error };
+  }
+}
+
+function signInWithGoogle() {
+  const provider = new GoogleAuthProvider();
+  return signInWithProvider(provider);
+}
+
+function signInWithFacebook() {
+  const provider = new FacebookAuthProvider();
+  return signInWithProvider(provider);
+}
+
+function signInWithTwitter() {
+  const provider = new TwitterAuthProvider();
+  return signInWithProvider(provider);
+}
 async function logoutUser() {
   try {
     await signOut(auth);
