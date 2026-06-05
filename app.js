@@ -367,8 +367,12 @@ async function checkout() {
 }
 
 // Clear cart after successful payment
-function clearCart() {
+// Clear cart after successful payment
+async function clearCart() {
   cartItems = [];
+  if (currentUser) {
+    await saveCart();
+  }
   updateCartUI();
 }
 
