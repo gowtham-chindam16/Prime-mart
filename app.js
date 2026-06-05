@@ -593,6 +593,9 @@ window.updateQuantity = updateQuantity;
 window.checkout = checkout;
 window.filterByCategory = filterByCategory;
 window.clearCart = clearCart;
+window.signInWithGoogle = signInWithGoogle;
+window.signInWithFacebook = signInWithFacebook;
+window.signInWithTwitter = signInWithTwitter;
 window.checkFirestoreProducts = async function() {
   try {
     const snapshot = await getDocs(collection(db, 'products'));
