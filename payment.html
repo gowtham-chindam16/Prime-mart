@@ -1,0 +1,416 @@
+<!-- filepath: primemart/payment.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment - PrimeMart</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .payment-container {
+      padding: 2rem 0;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .payment-card {
+      background: var(--white);
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: var(--shadow);
+      margin-bottom: 1.5rem;
+    }
+    .payment-title {
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      color: var(--dark-color);
+    }
+    .order-summary {
+      margin-bottom: 2rem;
+    }
+    .order-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--light-gray);
+    }
+    .order-item:last-child {
+      border-bottom: none;
+    }
+    .order-item-name {
+      font-weight: 500;
+    }
+    .order-item-qty {
+      color: var(--gray-color);
+      font-size: 0.875rem;
+    }
+    .order-item-price {
+      font-weight: 600;
+    }
+    .payment-options {
+      margin: 2rem 0;
+    }
+    .payment-option {
+      display: flex;
+      align-items: center;
+      padding: 1rem;
+      border: 2px solid var(--light-gray);
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .payment-option:hover {
+      border-color: var(--primary-color);
+    }
+    .payment-option.selected {
+      border-color: var(--primary-color);
+      background: #eff6ff;
+    }
+    .payment-option input {
+      margin-right: 1rem;
+    }
+    .payment-option-content {
+      flex: 1;
+    }
+    .payment-option-title {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+    .payment-option-desc {
+      font-size: 0.875rem;
+      color: var(--gray-color);
+    }
+    .qr-section {
+      text-align: center;
+      padding: 2rem;
+      background: #fafafa;
+      border-radius: 8px;
+      margin-top: 1rem;
+    }
+    .qr-code {
+      width: 200px;
+      height: 200px;
+      margin: 1rem auto;
+      background: white;
+      padding: 10px;
+      border-radius: 8px;
+    }
+    .qr-amount {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary-color);
+      margin: 1rem 0;
+    }
+    .qr-instructions {
+      font-size: 0.875rem;
+      color: var(--gray-color);
+      margin-top: 1rem;
+    }
+    .cod-section {
+      padding: 1.5rem;
+      background: #f0fdf4;
+      border-radius: 8px;
+      border: 2px solid #86efac;
+      margin-top: 1rem;
+    }
+    .cod-title {
+      font-weight: 600;
+      color: #166534;
+      margin-bottom: 0.5rem;
+    }
+    .cod-desc {
+      font-size: 0.875rem;
+      color: #15803d;
+    }
+    .btn-pay {
+      width: 100%;
+      background: var(--secondary-color);
+      color: white;
+      padding: 1rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 1.125rem;
+      margin-top: 1.5rem;
+      transition: var(--transition);
+    }
+    .btn-pay:hover {
+      background: #059669;
+    }
+    .btn-pay:disabled {
+      background: var(--gray-color);
+      cursor: not-allowed;
+    }
+    .back-link {
+      display: inline-block;
+      margin-bottom: 1rem;
+      color: var(--primary-color);
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="container">
+      <div class="header-content">
+        <a href="index.html" class="logo">Prime<span>Mart</span></a>
+        
+        <nav class="nav-links">
+          <div id="auth-links" style="display: flex; gap: 1rem;">
+            <a href="auth.html">Login</a>
+          </div>
+          
+          <div id="user-menu" style="display: none; align-items: center; gap: 1rem;">
+            <span class="user-name">Welcome, <span id="user-name">User</span></span>
+            <button id="logout-btn" class="btn-logout">Logout</button>
+          </div>
+          
+          <a href="cart.html" class="cart-icon">
+            🛒 Cart
+            <span id="cart-badge" class="cart-badge" style="display: none;">0</span>
+          </a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- Payment Container -->
+  <section class="payment-container">
+    <div class="container">
+      <a href="cart.html" class="back-link">← Back to Cart</a>
+      
+      <h1 class="payment-title">Checkout & Payment</h1>
+      
+      <!-- Order Summary -->
+      <div class="payment-card">
+        <h2 style="margin-bottom: 1rem;">Order Summary</h2>
+        <div id="order-items"></div>
+        <div class="order-summary" style="border-top: 2px solid var(--light-gray); margin-top: 1rem; padding-top: 1rem;">
+          <div class="order-item">
+            <span>Subtotal</span>
+            <span id="order-subtotal">$0.00</span>
+          </div>
+          <div class="order-item">
+            <span>Shipping</span>
+            <span>Free</span>
+          </div>
+          <div class="order-item">
+            <span style="font-weight: 700; font-size: 1.125rem;">Total</span>
+            <span id="order-total" style="font-weight: 700; font-size: 1.25rem; color: var(--primary-color);">$0.00</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment Options -->
+      <div class="payment-card">
+        <h2 style="margin-bottom: 1rem;">Select Payment Method</h2>
+        
+        <div class="payment-options">
+          <!-- UPI/QR Option -->
+          <label class="payment-option selected" data-method="qr">
+            <input type="radio" name="payment-method" value="qr" checked>
+            <div class="payment-option-content">
+              <div class="payment-option-title">📱 UPI / QR Code Payment</div>
+              <div class="payment-option-desc">Scan QR code and pay instantly</div>
+            </div>
+          </label>
+          
+          <!-- COD Option -->
+          <label class="payment-option" data-method="cod">
+            <input type="radio" name="payment-method" value="cod">
+            <div class="payment-option-content">
+              <div class="payment-option-title">💵 Cash on Delivery (COD)</div>
+              <div class="payment-option-desc">Pay when you receive your order</div>
+            </div>
+          </label>
+        </div>
+
+        <!-- QR Section -->
+        <div id="qr-section">
+          <div class="qr-section">
+            <h3>Scan to Pay</h3>
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=PrimeMart-Payment-12345" alt="Payment QR Code" class="qr-code" id="qr-image">
+            <div class="qr-amount" id="qr-amount">$0.00</div>
+            <p class="qr-instructions">
+              Open any UPI app (Google Pay, PhonePe, Paytm) and scan this QR code to pay
+            </p>
+            <p style="margin-top: 0.5rem; font-size: 0.75rem; color: var(--gray-color);">
+              Transaction ID: PM<span id="transaction-id">12345</span>
+            </p>
+          </div>
+        </div>
+
+        <!-- COD Section -->
+        <div id="cod-section" style="display: none;">
+          <div class="cod-section">
+            <div class="cod-title">✓ Cash on Delivery Available</div>
+            <div class="cod-desc">
+              <p>You can pay in cash when the delivery person arrives at your doorstep.</p>
+              <p style="margin-top: 0.5rem;"><strong>Note:</strong> Please keep the exact amount ready for a smoother delivery experience.</p>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-pay" id="place-order-btn" onclick="placeOrder()">
+          Place Order
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <p>&copy; 2026 PrimeMart. All rights reserved.</p>
+        <p>Built with Firebase</p>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module" src="app.js"></script>
+  <script>
+    // Payment page specific code
+    let orderTotal = 0;
+    let selectedPaymentMethod = 'qr';
+
+    // Load order data from sessionStorage
+    function loadOrderData() {
+      const orderData = sessionStorage.getItem('checkoutData');
+      if (!orderData) {
+        window.location.href = 'cart.html';
+        return;
+      }
+      
+      const data = JSON.parse(orderData);
+      orderTotal = data.total;
+      
+      // Render order items
+      const orderItemsEl = document.getElementById('order-items');
+      orderItemsEl.innerHTML = data.items.map(item => `
+        <div class="order-item">
+          <div>
+            <div class="order-item-name">${item.name}</div>
+            <div class="order-item-qty">Qty: ${item.quantity} × $${item.price.toFixed(2)}</div>
+          </div>
+          <div class="order-item-price">$${(item.price * item.quantity).toFixed(2)}</div>
+        </div>
+      `).join('');
+      
+      // Update totals
+      document.getElementById('order-subtotal').textContent = `$${orderTotal.toFixed(2)}`;
+      document.getElementById('order-total').textContent = `$${orderTotal.toFixed(2)}`;
+      document.getElementById('qr-amount').textContent = `$${orderTotal.toFixed(2)}`;
+      
+      // Generate random transaction ID
+      const transactionId = Math.floor(10000 + Math.random() * 90000);
+      document.getElementById('transaction-id').textContent = transactionId;
+      
+      // Update QR code with actual amount
+      const qrData = `PrimeMart-Payment-${transactionId}-$${orderTotal.toFixed(2)}`;
+      document.getElementById('qr-image').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrData)}`;
+    }
+
+    // Payment method selection
+    document.querySelectorAll('.payment-option').forEach(option => {
+      option.addEventListener('click', function() {
+        document.querySelectorAll('.payment-option').forEach(o => o.classList.remove('selected'));
+        this.classList.add('selected');
+        
+        const method = this.dataset.method;
+        selectedPaymentMethod = method;
+        
+        document.getElementById('qr-section').style.display = method === 'qr' ? 'block' : 'none';
+        document.getElementById('cod-section').style.display = method === 'cod' ? 'block' : 'none';
+      });
+    });
+
+    // Place order function
+    async function placeOrder() {
+      const btn = document.getElementById('place-order-btn');
+      btn.disabled = true;
+      btn.textContent = 'Processing...';
+      
+      try {
+        // Get order data
+        const orderData = JSON.parse(sessionStorage.getItem('checkoutData'));
+        const transactionId = document.getElementById('transaction-id').textContent;
+        
+        // Try to save to Firestore
+        try {
+          const { getFirestore, collection, addDoc, serverTimestamp, doc, setDoc } = await import("https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js");
+          
+          const firebaseConfig = {
+            apiKey: "AIzaSyDaVAcwsRzVZDZY7FVURwZdcSZMa035EMQ",
+            authDomain: "primemart-49775.firebaseapp.com",
+            projectId: "primemart-49775",
+            storageBucket: "primemart-49775.firebasestorage.app",
+            messagingSenderId: "109416987490",
+            appId: "1:109416987490:web:7aa73e3472651147220a3b"
+          };
+          
+          const { initializeApp } = await import("https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js");
+          const app = initializeApp(firebaseConfig);
+          const db = getFirestore(app);
+          
+          // Create order
+          const order = {
+            userId: orderData.userId,
+            items: orderData.items,
+            total: orderData.total,
+            paymentMethod: selectedPaymentMethod,
+            transactionId: 'PM' + transactionId,
+            createdAt: serverTimestamp(),
+            status: 'confirmed'
+          };
+
+          await addDoc(collection(db, 'orders'), order);
+          
+          // Clear cart from Firestore
+          if (orderData.userId) {
+            await setDoc(doc(db, 'carts', orderData.userId), {
+              userId: orderData.userId,
+              items: [],
+              updatedAt: serverTimestamp()
+            });
+          }
+        } catch (firestoreError) {
+          console.log('Firestore error, using localStorage fallback:', firestoreError);
+          // Fallback: save to localStorage
+          const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+          orders.push({
+            userId: orderData.userId,
+            items: orderData.items,
+            total: orderData.total,
+            paymentMethod: selectedPaymentMethod,
+            transactionId: 'PM' + transactionId,
+            createdAt: new Date().toISOString(),
+            status: 'confirmed'
+          });
+          localStorage.setItem('orders', JSON.stringify(orders));
+        }
+        
+        // Clear session
+        sessionStorage.removeItem('checkoutData');
+        
+        // Clear cart in app.js
+        if (typeof clearCart === 'function') {
+          clearCart();
+        }
+        
+        // Show success and redirect
+        alert(`Order placed successfully!\n\nPayment Method: ${selectedPaymentMethod === 'qr' ? 'UPI/QR Code' : 'Cash on Delivery'}\nTransaction ID: PM${transactionId}\n\nYou will receive a confirmation shortly.`);
+        
+        window.location.href = 'index.html';
+      } catch (error) {
+        console.error('Order error:', error);
+        alert('Error placing order: ' + error.message);
+        btn.disabled = false;
+        btn.textContent = 'Place Order';
+      }
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', loadOrderData);
+  </script>
+</body>
+</html>

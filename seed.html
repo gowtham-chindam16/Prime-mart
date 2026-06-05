@@ -1,0 +1,219 @@
+<!-- filepath: primemart/seed.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seed Products - PrimeMart</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      text-align: center;
+    }
+    .status {
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 8px;
+    }
+    .success { background: #d1fae5; color: #065f46; }
+    .error { background: #fee2e2; color: #991b1b; }
+    .info { background: #dbeafe; color: #1e40af; }
+    button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 10px;
+    }
+    button:hover { background: #1d4ed8; }
+    button:disabled { background: #9ca3af; }
+    .config-section {
+      background: #f3f4f6;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      text-align: left;
+    }
+    .config-section h3 { margin-top: 0; }
+    .config-section label { display: block; margin-bottom: 5px; font-weight: 500; }
+    .config-section input {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+    }
+    .product-list {
+      text-align: left;
+      background: #f9fafb;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 15px 0;
+    }
+    .product-list li { padding: 5px 0; }
+  </style>
+</head>
+<body>
+  <h1>🌱 PrimeMart Product Seeder</h1>
+  
+    <div class="config-section">
+    <h3>Firebase Configuration</h3>
+    <label>API Key:</label>
+    <input type="text" id="apiKey" value="AIzaSyDaVAcwsRzVZDZY7FVURwZdcSZMa035EMQ">
+    <label>Project ID:</label>
+    <input type="text" id="projectId" value="primemart-49775">
+    <label>Messaging Sender ID:</label>
+    <input type="text" id="messagingSenderId" value="109416987490">
+    <label>App ID:</label>
+    <input type="text" id="appId" value="1:109416987490:web:7aa73e3472651147220a3b">
+  </div>
+
+  <button id="seedBtn" onclick="seedProducts()">Add Sample Products</button>
+  <button onclick="clearProducts()">Clear All Products</button>
+
+  <div id="status"></div>
+
+  <div class="product-list">
+    <strong>Products to be added:</strong>
+    <ul>
+      <li>Wireless Headphones - $79.99 - Electronics</li>
+      <li>Smart Watch - $199.99 - Electronics</li>
+      <li>Running Shoes - $89.99 - Sports</li>
+      <li>Cotton T-Shirt - $29.99 - Clothing</li>
+      <li>Coffee Maker - $149.99 - Home</li>
+      <li>Backpack - $59.99 - Accessories</li>
+      <li>Sunglasses - $129.99 - Accessories</li>
+      <li>Desk Lamp - $45.99 - Home</li>
+      <li>Bluetooth Speaker - $59.99 - Electronics</li>
+      <li>Yoga Mat - $34.99 - Sports</li>
+    </ul>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+    let db;
+
+    function getConfig() {
+      return {
+        apiKey: document.getElementById('apiKey').value,
+        authDomain: document.getElementById('projectId').value + '.firebaseapp.com',
+        projectId: document.getElementById('projectId').value,
+        storageBucket: document.getElementById('projectId').value + '.appspot.com',
+        messagingSenderId: document.getElementById('messagingSenderId').value,
+        appId: document.getElementById('appId').value
+      };
+    }
+
+    function showStatus(message, type = 'info') {
+      document.getElementById('status').innerHTML = `<div class="status ${type}">${message}</div>`;
+    }
+
+    async function initFirebase() {
+      const config = getConfig();
+      
+      if (!config.apiKey || !config.projectId) {
+        showStatus('Please fill in all Firebase configuration fields', 'error');
+        return null;
+      }
+
+      try {
+        const app = initializeApp(config);
+        db = getFirestore(app);
+        return db;
+      } catch (error) {
+        showStatus('Firebase initialization error: ' + error.message, 'error');
+        return null;
+      }
+    }
+
+    async function seedProducts() {
+      const btn = document.getElementById('seedBtn');
+      btn.disabled = true;
+      btn.textContent = 'Seeding...';
+
+      db = await initFirebase();
+      if (!db) {
+        btn.disabled = false;
+        btn.textContent = 'Add Sample Products';
+        return;
+      }
+
+      const products = [
+        { name: 'Wireless Headphones', price: 79.99, category: 'Electronics', image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400' },
+        { name: 'Smart Watch', price: 199.99, category: 'Electronics', image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400' },
+        { name: 'Running Shoes', price: 89.99, category: 'Sports', image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400' },
+        { name: 'Cotton T-Shirt', price: 29.99, category: 'Clothing', image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400' },
+        { name: 'Coffee Maker', price: 149.99, category: 'Home', image: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400' },
+        { name: 'Backpack', price: 59.99, category: 'Accessories', image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400' },
+        { name: 'Sunglasses', price: 129.99, category: 'Accessories', image: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400' },
+        { name: 'Desk Lamp', price: 45.99, category: 'Home', image: 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=400' },
+        { name: 'Bluetooth Speaker', price: 59.99, category: 'Electronics', image: 'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=400' },
+        { name: 'Yoga Mat', price: 34.99, category: 'Sports', image: 'https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?w=400' }
+      ];
+
+      let added = 0;
+      for (const product of products) {
+        try {
+          await addDoc(collection(db, 'products'), product);
+          added++;
+          showStatus(`Adding products... ${added}/${products.length}`, 'info');
+        } catch (error) {
+          console.error('Error adding product:', product.name, error);
+        }
+      }
+
+      btn.disabled = false;
+      btn.textContent = 'Add Sample Products';
+      showStatus(`✅ Successfully added ${added} products to Firestore!`, 'success');
+    }
+
+    async function clearProducts() {
+      if (!db) {
+        db = await initFirebase();
+        if (!db) return;
+      }
+
+      if (!confirm('Are you sure you want to delete all products?')) return;
+
+      try {
+        const snapshot = await getDocs(collection(db, 'products'));
+        let deleted = 0;
+        
+        for (const docSnap of snapshot.docs) {
+          await deleteDoc(doc(db, 'products', docSnap.id));
+          deleted++;
+        }
+
+        showStatus(`✅ Deleted ${deleted} products from Firestore`, 'success');
+      } catch (error) {
+        showStatus('Error clearing products: ' + error.message, 'error');
+      }
+    }
+
+    // Save config to localStorage
+    const savedConfig = localStorage.getItem('primemart_config');
+    if (savedConfig) {
+      const config = JSON.parse(savedConfig);
+      document.getElementById('apiKey').value = config.apiKey || '';
+      document.getElementById('projectId').value = config.projectId || '';
+      document.getElementById('messagingSenderId').value = config.messagingSenderId || '';
+      document.getElementById('appId').value = config.appId || '';
+    }
+
+    // Save config when changed
+    document.querySelectorAll('.config-section input').forEach(input => {
+      input.addEventListener('change', () => {
+        localStorage.setItem('primemart_config', JSON.stringify(getConfig()));
+      });
+    });
+  </script>
+</body>
+</html>
