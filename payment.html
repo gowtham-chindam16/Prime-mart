@@ -394,12 +394,26 @@
         
         // Clear cart in app.js
         if (typeof clearCart === 'function') {
-         await clearCart();
+          await clearCart();
         }
-        
+
+        // Send confirmation email (best-effort)
+        try {
+          const userEmail = orderData.userEmail || null;
+          if (userEmail) {
+            fetch('/send-confirmation', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email: userEmail, order: orderData, transactionId: 'PM' + transactionId })
+            }).catch(e => console.warn('Email send error', e));
+          }
+        } catch (e) {
+          console.warn('Email send failed', e);
+        }
+
         // Show success and redirect
         alert(`Order placed successfully!\n\nPayment Method: ${selectedPaymentMethod === 'qr' ? 'UPI/QR Code' : 'Cash on Delivery'}\nTransaction ID: PM${transactionId}\n\nYou will receive a confirmation shortly.`);
-        
+
         window.location.href = 'index.html';
       } catch (error) {
         console.error('Order error:', error);
