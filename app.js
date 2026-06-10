@@ -108,27 +108,6 @@ async function loginUser(email, password) {
   }
 }
 
-async function signInWithProvider(provider) {
-  try {
-    const result = await signInWithPopup(auth, provider);
-    showToast('Login successful!');
-    setTimeout(() => {
-      window.location.href = 'index.html';
-    }, 1000);
-    return { success: true, user: result.user };
-  } catch (error) {
-    console.error('Social login error:', error);
-    let message = 'Social login failed. Please try again.';
-    if (error.code === 'auth/popup-closed-by-user') {
-      message = 'Login popup closed before completion.';
-    } else if (error.code === 'auth/account-exists-with-different-credential') {
-      message = 'An account already exists with a different sign-in method.';
-    }
-    showToast(message, 'error');
-    return { success: false, error };
-  }
-}
-
 async function saveUserProfile(user) {
   if (!user) return;
   try {
